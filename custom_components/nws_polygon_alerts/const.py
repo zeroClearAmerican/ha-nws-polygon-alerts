@@ -26,6 +26,7 @@ CONF_INCLUDE_ZONE_ALERTS: Final = "include_zone_alerts"
 CONF_SCAN_INTERVAL: Final = "scan_interval"
 
 # ---- options: notifications ----
+CONF_NOTIFY_DEVICES: Final = "notify_devices"
 CONF_NOTIFY_SERVICES: Final = "notify_services"
 CONF_CRITICAL_EVENTS: Final = "critical_events"
 CONF_PERSISTENT: Final = "persistent_notification"
@@ -67,6 +68,7 @@ DEFAULT_OPTIONS: Final = {
     CONF_OTHER_EVENTS: [],
     CONF_INCLUDE_ZONE_ALERTS: False,
     CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
+    CONF_NOTIFY_DEVICES: [],
     CONF_NOTIFY_SERVICES: [],
     CONF_CRITICAL_EVENTS: [TORNADO_WARNING],
     CONF_PERSISTENT: True,

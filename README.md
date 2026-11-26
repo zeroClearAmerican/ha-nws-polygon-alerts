@@ -6,7 +6,7 @@ A Home Assistant integration that watches the National Weather Service for warni
 - Checks api.weather.gov every 60 seconds by default (adjustable from 30 to 900).
 - Turn tornado and severe thunderstorm warnings on or off, and add any other NWS event type.
 - Write your own title and message templates for tornado, thunderstorm, other alerts and "all clear".
-- Sends to any `notify.*` service. Mobile app alerts can be marked **critical** so they break through Do Not Disturb.
+- Choose which phones and tablets get alerts for each location, plus any other `notify.*` service. Mobile app alerts can be marked **critical** so they break through Do Not Disturb.
 - Updates to a warning are recognized, so an extended warning doesn't set off your phone a second time.
 - Remembers what it already alerted on across restarts and reloads.
 
@@ -22,7 +22,7 @@ Open **Configure** on an entry to set:
 | Menu | What's there |
 |---|---|
 | Alert types & polling | Tornado / severe thunderstorm switches, other alert types, match zone-only alerts (watches), poll interval |
-| Notifications | Notify services, which events are sent as critical, an alert inside Home Assistant, notify on update, notify on clear |
+| Notifications | Which mobile devices get this location's alerts, other notify services, which events are sent as critical, an alert inside Home Assistant, notify on update, notify on clear |
 | Message text | Title and message templates for each category |
 
 To move a location, use **⋮ → Reconfigure** on the entry.

@@ -12,11 +12,12 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import TemplateError
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.template import Template
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.util import dt as dt_util
+from homeassistant.util import dt as dt_util, slugify
 
 from .alerts import Alert, AlertChanges, AlertTracker, match_alerts
 from .api import NWSApiError, NWSClient
@@ -28,6 +29,7 @@ from .const import (
     CONF_LOCATION,
     CONF_NOTIFY_ON_CLEAR,
     CONF_NOTIFY_ON_UPDATE,
+    CONF_NOTIFY_DEVICES,
     CONF_NOTIFY_SERVICES,
     CONF_OTHER_EVENTS,
     CONF_OTHER_MESSAGE,
@@ -258,9 +260,47 @@ class NWSAlertsCoordinator(DataUpdateCoordinator[AlertsData]):
             title, message, critical=alert.event in self.options[CONF_CRITICAL_EVENTS]
         )
 
+    def _device_services(self) -> list[str]:
+        """Map selected mobile-app devices to their notify.mobile_app_* service."""
+        dev_reg = dr.async_get(self.hass)
+        services: list[str] = []
+        for device_id in self.options[CONF_NOTIFY_DEVICES]:
+            device = dev_reg.async_get(device_id)
+            if device is None:
+                _LOGGER.warning(
+                    "%s: notification device %s no longer exists",
+                    self.location_name,
+                    device_id,
+                )
+                continue
+            for entry_id in device.config_entries:
+                entry = self.hass.config_entries.async_get_entry(entry_id)
+                if entry is None or entry.domain != "mobile_app":
+                    continue
+                # mobile_app names its service after the name the phone registered
+                # with, which doesn't change if the device is renamed in HA.
+                name = entry.data.get("device_name") or device.name or ""
+                services.append(f"mobile_app_{slugify(name)}")
+                break
+        return services
+
+    def _targets(self) -> list[str]:
+        targets: list[str] = []
+        for service in [
+            *self._device_services(),
+            *(s.removeprefix("notify.") for s in self.options[CONF_NOTIFY_SERVICES]),
+        ]:
+            if service not in targets:
+                targets.append(service)
+        return targets
+
     async def _send(self, title: str, message: str, critical: bool) -> None:
-        for target in self.options[CONF_NOTIFY_SERVICES]:
-            service = target.removeprefix("notify.")
+        for service in self._targets():
+            if not self.hass.services.has_service("notify", service):
+                _LOGGER.warning(
+                    "%s: notify.%s doesn't exist, skipping", self.location_name, service
+                )
+                continue
             payload: dict[str, Any] = {"title": title, "message": message}
             # Only the mobile app understands this payload; other notify
             # platforms may reject unknown data keys.

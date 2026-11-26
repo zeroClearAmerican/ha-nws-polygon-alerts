@@ -18,6 +18,8 @@ from homeassistant.data_entry_flow import section
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     BooleanSelector,
+    DeviceSelector,
+    DeviceSelectorConfig,
     LocationSelector,
     LocationSelectorConfig,
     NumberSelector,
@@ -40,6 +42,7 @@ from .const import (
     CONF_LOCATION,
     CONF_NOTIFY_ON_CLEAR,
     CONF_NOTIFY_ON_UPDATE,
+    CONF_NOTIFY_DEVICES,
     CONF_NOTIFY_SERVICES,
     CONF_OTHER_EVENTS,
     CONF_OTHER_MESSAGE,
@@ -66,6 +69,12 @@ MESSAGE_SECTIONS = {
     "other": (CONF_OTHER_TITLE, CONF_OTHER_MESSAGE),
     "cleared": (CONF_CLEAR_TITLE, CONF_CLEAR_MESSAGE),
 }
+
+
+def _device_selector() -> DeviceSelector:
+    return DeviceSelector(
+        DeviceSelectorConfig(filter={"integration": "mobile_app"}, multiple=True)
+    )
 
 
 def _unique_id(lat: float, lon: float) -> str:
@@ -112,6 +121,7 @@ class NWSAlertsConfigFlow(ConfigFlow, domain=DOMAIN):
                         **DEFAULT_OPTIONS,
                         CONF_TORNADO: user_input[CONF_TORNADO],
                         CONF_TSTORM: user_input[CONF_TSTORM],
+                        CONF_NOTIFY_DEVICES: user_input.get(CONF_NOTIFY_DEVICES, []),
                     },
                 )
             errors["base"] = error
@@ -124,6 +134,7 @@ class NWSAlertsConfigFlow(ConfigFlow, domain=DOMAIN):
                 ),
                 vol.Required(CONF_TORNADO, default=True): BooleanSelector(),
                 vol.Required(CONF_TSTORM, default=True): BooleanSelector(),
+                vol.Optional(CONF_NOTIFY_DEVICES, default=[]): _device_selector(),
             }
         )
         if user_input is not None:
@@ -250,7 +261,7 @@ class NWSAlertsOptionsFlow(OptionsFlow):
         services = sorted(
             f"notify.{name}"
             for name in self.hass.services.async_services().get("notify", {})
-            if name != "send_message"
+            if name != "send_message" and not name.startswith("mobile_app_")
         )
         services += [s for s in o[CONF_NOTIFY_SERVICES] if s not in services]
 
@@ -259,6 +270,9 @@ class NWSAlertsOptionsFlow(OptionsFlow):
 
         schema = vol.Schema(
             {
+                vol.Optional(
+                    CONF_NOTIFY_DEVICES, default=o[CONF_NOTIFY_DEVICES]
+                ): _device_selector(),
                 vol.Optional(
                     CONF_NOTIFY_SERVICES, default=o[CONF_NOTIFY_SERVICES]
                 ): SelectSelector(
