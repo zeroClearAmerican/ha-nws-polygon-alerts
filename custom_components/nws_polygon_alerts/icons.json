@@ -1,0 +1,16 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "tornado_warning": { "default": "mdi:weather-tornado" },
+      "severe_thunderstorm_warning": { "default": "mdi:weather-lightning-rainy" },
+      "any_alert": { "default": "mdi:alert-outline", "state": { "on": "mdi:alert" } },
+      "api_problem": { "default": "mdi:cloud-check-outline", "state": { "on": "mdi:cloud-alert" } }
+    },
+    "sensor": {
+      "active_alerts": { "default": "mdi:alert-circle-outline" }
+    },
+    "button": {
+      "send_test_alert": { "default": "mdi:bell-ring-outline" }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "domain": "nws_polygon_alerts",
+  "name": "NWS Polygon Alerts",
+  "codeowners": ["@zeroClearAmerican"],
+  "config_flow": true,
+  "dependencies": ["persistent_notification"],
+  "documentation": "https://github.com/zeroClearAmerican/ha-nws-polygon-alerts",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/zeroClearAmerican/ha-nws-polygon-alerts/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

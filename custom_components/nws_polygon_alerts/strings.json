@@ -1,0 +1,111 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add a location to monitor",
+        "description": "Pick the exact spot to watch. An alert only counts if this point is inside the warning polygon, not merely somewhere in the same county. More alert types, notifications and message text can be set under **Configure** after setup.",
+        "data": {
+          "name": "Location name",
+          "location": "Location",
+          "monitor_tornado": "Monitor Tornado Warnings",
+          "monitor_severe_thunderstorm": "Monitor Severe Thunderstorm Warnings"
+        }
+      },
+      "reconfigure": {
+        "title": "Change location",
+        "data": {
+          "name": "Location name",
+          "location": "Location"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Couldn't reach api.weather.gov. Try again in a minute.",
+      "invalid_location": "The NWS API rejected this location. It only covers the United States and its territories."
+    },
+    "abort": {
+      "already_configured": "This location is already being monitored.",
+      "reconfigure_successful": "Location updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Settings",
+        "menu_options": {
+          "monitoring": "Alert types & polling",
+          "notifications": "Notifications",
+          "messages": "Message text"
+        }
+      },
+      "monitoring": {
+        "title": "Alert types & polling",
+        "data": {
+          "monitor_tornado": "Tornado Warnings",
+          "monitor_severe_thunderstorm": "Severe Thunderstorm Warnings",
+          "other_events": "Other alert types",
+          "include_zone_alerts": "Also match alerts without a polygon",
+          "scan_interval": "Check every"
+        },
+        "data_description": {
+          "other_events": "Any NWS event name. You can type one that isn't in the list.",
+          "include_zone_alerts": "Watches and many advisories cover whole counties or zones and have no polygon. When on, they match if your zone is included. When off, only alerts whose polygon contains your location count.",
+          "scan_interval": "How often to ask api.weather.gov for alerts (30–900 seconds)."
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Events for automations (`nws_polygon_alerts_new_alert`, `_alert_updated`, `_alert_cleared`) are always fired, whatever you choose here.",
+        "data": {
+          "notify_services": "Notify services",
+          "critical_events": "Send as critical alerts",
+          "persistent_notification": "Show a notification in Home Assistant",
+          "notify_on_update": "Notify again when an alert is updated",
+          "notify_on_clear": "Notify when an alert clears"
+        },
+        "data_description": {
+          "notify_services": "For example notify.mobile_app_your_phone. Leave empty to rely on events or entities only.",
+          "critical_events": "For mobile app targets these break through Do Not Disturb and silent mode (iOS critical alert / Android alarm channel).",
+          "notify_on_update": "NWS re-issues a warning with a new ID when it's extended or changed. Off means you're only alerted the first time."
+        }
+      },
+      "messages": {
+        "title": "Message text",
+        "description": "Titles and messages are Home Assistant templates. You can use `location`, `event`, `headline`, `description`, `instruction`, `area`, `severity`, `certainty`, `urgency`, `sender`, `sent`, `effective`, `expires`, `ends` and `url`, for example `{{ headline }}`. Clear a field to go back to the default.",
+        "sections": {
+          "tornado": {
+            "name": "Tornado Warning",
+            "data": { "tornado_title": "Title", "tornado_message": "Message" }
+          },
+          "severe_thunderstorm": {
+            "name": "Severe Thunderstorm Warning",
+            "data": { "tstorm_title": "Title", "tstorm_message": "Message" }
+          },
+          "other": {
+            "name": "All other alert types",
+            "data": { "other_title": "Title", "other_message": "Message" }
+          },
+          "cleared": {
+            "name": "Alert cleared",
+            "data": { "clear_title": "Title", "clear_message": "Message" }
+          }
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "tornado_warning": { "name": "Tornado warning" },
+      "severe_thunderstorm_warning": { "name": "Severe thunderstorm warning" },
+      "any_alert": { "name": "Active alert" },
+      "api_problem": { "name": "API problem" }
+    },
+    "sensor": {
+      "active_alerts": { "name": "Active alerts" },
+      "last_check": { "name": "Last successful check" }
+    },
+    "button": {
+      "send_test_alert": { "name": "Send test alert" }
+    }
+  }
+}

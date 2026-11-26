@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Legacy Docker version (kept locally, not part of the integration repo)
+node_modules/
+app.js
+Dockerfile
+docker-compose.yml
+package.json
+package-lock.json
